@@ -5,7 +5,7 @@ $con = mysqli_connect("localhost","wpkkcuac_root","Mmy_databaseH","wpkkcuac_my_d
 $name = $_GET['n'];
 $mobile = $_GET['m'];
 $email = $_GET['e'];
-$something = $_GET['s'];
+
 
 
 $sql = "INSERT INTO user_table (name,mobile,email) VALUES ('$name','$mobile','$email') ";
