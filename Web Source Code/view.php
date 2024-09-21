@@ -18,5 +18,4 @@ array_push($data,$userInfo);
 }
 
 echo json_encode($data);
-
 ?>

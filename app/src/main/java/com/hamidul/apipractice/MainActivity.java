@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity {
                 String mobile = insertDataIntoDbBinding.edMobile.getText().toString();
                 String email = insertDataIntoDbBinding.edEmail.getText().toString();
 
-                String url = "https://smhamidul.xyz/apps/data.php?n="+name+"&m="+mobile+"&e="+email;
+                String url = "https://smhamidul.xyz/api_practice/data_insert.php?n="+name+"&m="+mobile+"&e="+email;
 
                 RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void getUserDetails(){
 
-        String url = "https://smhamidul.xyz/apps/view.php";
+        String url = "https://smhamidul.xyz/api_practice/view.php";
 
         arrayList = new ArrayList<>();
 
@@ -214,6 +214,44 @@ public class MainActivity extends AppCompatActivity {
             userItemBinding.tvMobile.setText(mobile);
             userItemBinding.tvEmail.setText(email);
 
+            userItemBinding.btnUpdate.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+
+                    String url = "https://smhamidul.xyz/api_practice/update.php?id="+id+"&n="+insertDataIntoDbBinding.edName.getText().toString()+"&m="+insertDataIntoDbBinding.edMobile.getText().toString()+"&e="+insertDataIntoDbBinding.edEmail.getText().toString();
+
+                    RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                            new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Server Response")
+                                    .setMessage(response.toString())
+                                    .show();
+
+                            insertDataIntoDbBinding.edName.setText("");
+                            insertDataIntoDbBinding.edMobile.setText("");
+                            insertDataIntoDbBinding.edEmail.setText("");
+                            insertDataIntoDbBinding.edName.requestFocus();
+
+                            getUserDetails();
+                            
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                            Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    requestQueue.add(stringRequest);
+
+                }
+            });
+
             return myView;
         }
     }
@@ -241,7 +279,7 @@ public class MainActivity extends AppCompatActivity {
             editor.apply();
         }
 
-        String url = "https://smhamidul.xyz/apps/video.json";
+        String url = "https://smhamidul.xyz/api_practice/video.json";
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
         JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
             @Override
@@ -287,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         jsonBinding = GetJsonBinding.inflate(getLayoutInflater());
         setContentView(jsonBinding.getRoot());
 
-        String url = "https://smhamidul.xyz/apps/dummyjson.json";
+        String url = "https://smhamidul.xyz/api_practice/dummyjson.json";
         jsonBinding.progressBar.setVisibility(View.VISIBLE);
         jsonBinding.textView.setText("");
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
