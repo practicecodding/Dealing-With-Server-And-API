@@ -36,6 +36,7 @@ import com.hamidul.apipractice.databinding.ActivityMainBinding;
 import com.hamidul.apipractice.databinding.GetJsonBinding;
 import com.hamidul.apipractice.databinding.InsertDataIntoDbBinding;
 import com.hamidul.apipractice.databinding.ItemBinding;
+import com.hamidul.apipractice.databinding.UserItemBinding;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -71,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         insertDataIntoDbBinding = InsertDataIntoDbBinding.inflate(getLayoutInflater());
         setContentView(insertDataIntoDbBinding.getRoot());
 
+        getUserDetails();
+
         insertDataIntoDbBinding.button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +104,8 @@ public class MainActivity extends AppCompatActivity {
                         insertDataIntoDbBinding.edEmail.setText("");
                         insertDataIntoDbBinding.edName.requestFocus();
 
+                        getUserDetails();
+
                     }
                 }, new Response.ErrorListener() {
                     @Override
@@ -119,6 +124,101 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
+    private void getUserDetails(){
+
+        String url = "https://smhamidul.xyz/apps/view.php";
+
+        arrayList = new ArrayList<>();
+
+        insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+
+        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(Request.Method.GET, url, null, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+
+                for (int x=0; x<response.length(); x++){
+                    try {
+                        JSONObject jsonObject = response.getJSONObject(x);
+                        String id = jsonObject.getString("id");
+                        String name = jsonObject.getString("name");
+                        String mobile = jsonObject.getString("mobile");
+                        String email = jsonObject.getString("email");
+
+                        hashMap = new HashMap<>();
+                        hashMap.put("id",id);
+                        hashMap.put("name",name);
+                        hashMap.put("mobile",mobile);
+                        hashMap.put("email",email);
+                        arrayList.add(hashMap);
+
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+
+
+                if (arrayList.size()>0){
+                    UserAdapter userAdapter = new UserAdapter();
+                    insertDataIntoDbBinding.listView.setAdapter(userAdapter);
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("serverRes",error.toString());
+                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+            }
+        });
+
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+        requestQueue.add(jsonArrayRequest);
+
+    }
+
+    public class UserAdapter extends BaseAdapter{
+
+        UserItemBinding userItemBinding;
+
+        @Override
+        public int getCount() {
+            return arrayList.size();
+        }
+
+        @Override
+        public Object getItem(int i) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int i) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int i, View view, ViewGroup viewGroup) {
+            LayoutInflater layoutInflater = getLayoutInflater();
+            View myView = layoutInflater.inflate(R.layout.user_item,null);
+            userItemBinding = UserItemBinding.bind(myView);
+
+            hashMap = arrayList.get(i);
+            String id = hashMap.get("id");
+            String name = hashMap.get("name");
+            String mobile = hashMap.get("mobile");
+            String email = hashMap.get("email");
+
+            userItemBinding.tvName.setText(name);
+            userItemBinding.tvMobile.setText(mobile);
+            userItemBinding.tvEmail.setText(email);
+
+            return myView;
+        }
+    }
+
+    //---------------------------------------------------------------------------
 
     private void getVideos() {
 
