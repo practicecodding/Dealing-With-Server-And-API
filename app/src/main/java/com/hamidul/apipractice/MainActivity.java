@@ -1,5 +1,6 @@
 package com.hamidul.apipractice;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -252,8 +253,61 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            return myView;
-        }
+            userItemBinding.btnDelete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    new AlertDialog.Builder(MainActivity.this)
+                            .setTitle("Are you sure")
+                                    .setMessage("Delete this user details")
+                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                                @Override
+                                                public void onClick(DialogInterface dialogInterface, int i) {
+                                                    insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+
+                                                    String url = "https://smhamidul.xyz/api_practice/delete.php?id="+id;
+
+                                                    RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+
+                                                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                                                        @Override
+                                                        public void onResponse(String response) {
+
+                                                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+
+                                                            new AlertDialog.Builder(MainActivity.this)
+                                                                    .setTitle("Server Response")
+                                                                    .setMessage(response.toString())
+                                                                    .show();
+
+                                                            getUserDetails();
+
+                                                        }
+                                                    }, new Response.ErrorListener() {
+                                                        @Override
+                                                        public void onErrorResponse(VolleyError error) {
+                                                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                                                            Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+
+                                                    requestQueue.add(stringRequest);
+
+                                                }
+                                            })
+                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                                                        }
+                                                    })
+                                                            .setCancelable(false)
+                                                                    .show();
+
+                }
+            });
+
+            return myView;}
     }
 
     //---------------------------------------------------------------------------
