@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -45,28 +46,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
+            android:layout_marginTop="10dp"
             android:weightSum="2"
             >
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnUpdate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Update"
-                android:textColor="@color/black"
+                android:layout_height="40dp"
+                android:layout_marginRight="5dp"
                 android:layout_weight="1"
+                android:background="@drawable/custom_button"
+                android:enabled="true"
+                android:text="Update"
                 android:textAllCaps="true"
-                />
+                android:textColor="@drawable/tc"
+                tools:ignore="TouchTargetSizeCheck" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/btnDelete"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Delete"
-                android:textColor="@color/black"
+                android:layout_height="40dp"
+                android:layout_marginLeft="5dp"
                 android:layout_weight="1"
+                android:background="@drawable/custom_button"
+                android:enabled="true"
+                android:text="Delete"
                 android:textAllCaps="true"
-                />
+                android:textColor="@drawable/tc"
+                tools:ignore="TouchTargetSizeCheck" />
 
         </LinearLayout>
 

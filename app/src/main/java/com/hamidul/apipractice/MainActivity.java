@@ -1,10 +1,15 @@
 package com.hamidul.apipractice;
 
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,6 +39,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.hamidul.apipractice.databinding.ActivityMainBinding;
+import com.hamidul.apipractice.databinding.DialogBinding;
 import com.hamidul.apipractice.databinding.GetJsonBinding;
 import com.hamidul.apipractice.databinding.InsertDataIntoDbBinding;
 import com.hamidul.apipractice.databinding.ItemBinding;
@@ -74,6 +80,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(insertDataIntoDbBinding.getRoot());
 
         getUserDetails();
+
+        insertDataIntoDbBinding.edName.addTextChangedListener(watcher);
+        insertDataIntoDbBinding.edMobile.addTextChangedListener(watcher);
+        insertDataIntoDbBinding.edEmail.addTextChangedListener(watcher);
 
         insertDataIntoDbBinding.button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -183,6 +193,7 @@ public class MainActivity extends AppCompatActivity {
     public class UserAdapter extends BaseAdapter{
 
         UserItemBinding userItemBinding;
+        DialogBinding dialogBinding;
 
         @Override
         public int getCount() {
@@ -219,36 +230,52 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
 
-                    insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+                    String name = insertDataIntoDbBinding.edName.getText().toString();
+                    String mobile = insertDataIntoDbBinding.edMobile.getText().toString();
+                    String email = insertDataIntoDbBinding.edEmail.getText().toString();
 
-                    String url = "https://smhamidul.xyz/api_practice/update.php?id="+id+"&n="+insertDataIntoDbBinding.edName.getText().toString()+"&m="+insertDataIntoDbBinding.edMobile.getText().toString()+"&e="+insertDataIntoDbBinding.edEmail.getText().toString();
+                    if (name.isEmpty()){
+                        insertDataIntoDbBinding.edName.setError("Please Insert Name");
+                        insertDataIntoDbBinding.edName.requestFocus();
+                    } else if (mobile.isEmpty()) {
+                        insertDataIntoDbBinding.edMobile.setError("Please Insert Number");
+                        insertDataIntoDbBinding.edMobile.requestFocus();
+                    } else if (email.isEmpty()) {
+                        insertDataIntoDbBinding.edEmail.setError("Please Insert Email");
+                        insertDataIntoDbBinding.edEmail.requestFocus();
+                    }
+                    else {
+                        insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
 
-                    RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-                            new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Server Response")
-                                    .setMessage(response.toString())
-                                    .show();
+                        String url = "https://smhamidul.xyz/api_practice/update.php?id="+id+"&n="+insertDataIntoDbBinding.edName.getText().toString()+"&m="+insertDataIntoDbBinding.edMobile.getText().toString()+"&e="+insertDataIntoDbBinding.edEmail.getText().toString();
 
-                            insertDataIntoDbBinding.edName.setText("");
-                            insertDataIntoDbBinding.edMobile.setText("");
-                            insertDataIntoDbBinding.edEmail.setText("");
-                            insertDataIntoDbBinding.edName.requestFocus();
+                        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+                        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                                new AlertDialog.Builder(MainActivity.this)
+                                        .setTitle("Server Response")
+                                        .setMessage(response.toString())
+                                        .show();
 
-                            getUserDetails();
-                            
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-                            Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    requestQueue.add(stringRequest);
+                                insertDataIntoDbBinding.edName.setText("");
+                                insertDataIntoDbBinding.edMobile.setText("");
+                                insertDataIntoDbBinding.edEmail.setText("");
+                                insertDataIntoDbBinding.edName.requestFocus();
+
+                                getUserDetails();
+
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                                Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        requestQueue.add(stringRequest);
+                    }
 
                 }
             });
@@ -257,57 +284,35 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
 
-                    new AlertDialog.Builder(MainActivity.this)
-                            .setTitle("Are you sure")
-                                    .setMessage("Delete this user details")
-                                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                                @Override
-                                                public void onClick(DialogInterface dialogInterface, int i) {
-                                                    insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Are you sure ?");
+                    builder.setMessage("Delete this user details.");
+                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deleteMethod(id);
+                        }
+                    });
+                    builder.setNegativeButton("No", null);
 
-                                                    String url = "https://smhamidul.xyz/api_practice/delete.php?id="+id;
-
-                                                    RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
-
-                                                    StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
-                                                        @Override
-                                                        public void onResponse(String response) {
-
-                                                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-
-                                                            new AlertDialog.Builder(MainActivity.this)
-                                                                    .setTitle("Server Response")
-                                                                    .setMessage(response.toString())
-                                                                    .show();
-
-                                                            getUserDetails();
-
-                                                        }
-                                                    }, new Response.ErrorListener() {
-                                                        @Override
-                                                        public void onErrorResponse(VolleyError error) {
-                                                            insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-                                                            Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    });
-
-                                                    requestQueue.add(stringRequest);
-
-                                                }
-                                            })
-                                                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                                        @Override
-                                                        public void onClick(DialogInterface dialogInterface, int i) {
-
-                                                        }
-                                                    })
-                                                            .setCancelable(false)
-                                                                    .show();
+                    // Create the alert dialog and change Buttons colour
+                    AlertDialog dialog = builder.create();
+                    dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                        @Override
+                        public void onShow(DialogInterface arg0) {
+                            dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.red));
+                            dialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.blue));
+                        }
+                    });
+                    dialog.setCancelable(true);
+                    dialog.show();
 
                 }
             });
 
-            return myView;}
+            return myView;
+        }
+
     }
 
     //---------------------------------------------------------------------------
@@ -563,6 +568,65 @@ public class MainActivity extends AppCompatActivity {
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
     }
+
+
+    public TextWatcher watcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            String name = insertDataIntoDbBinding.edName.getText().toString();
+            String mobile = insertDataIntoDbBinding.edMobile.getText().toString();
+            String email = insertDataIntoDbBinding.edEmail.getText().toString();
+
+            insertDataIntoDbBinding.button.setEnabled(!name.isEmpty() && !mobile.isEmpty() && !email.isEmpty());
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+
+        }
+    };
+
+    public void deleteMethod(String id){
+
+        insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
+
+        String url = "https://smhamidul.xyz/api_practice/delete.php?id="+id;
+
+        RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
+
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Server Response")
+                        .setMessage(response.toString())
+                        .show();
+
+                getUserDetails();
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        requestQueue.add(stringRequest);
+    }
+
+
 
 
 }
