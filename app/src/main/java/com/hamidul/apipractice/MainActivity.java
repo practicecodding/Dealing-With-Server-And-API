@@ -58,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
     ActivityMainBinding binding;
     GetJsonBinding jsonBinding;
     InsertDataIntoDbBinding insertDataIntoDbBinding;
-    HashMap<String,String> hashMap;
-    ArrayList <HashMap<String,String>> arrayList = new ArrayList<>();
+    HashMap<String, String> hashMap;
+    ArrayList<HashMap<String, String>> arrayList = new ArrayList<>();
     boolean flag;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -68,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
-
 
         insertIntoDatabase();
 
@@ -97,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 String mobile = insertDataIntoDbBinding.edMobile.getText().toString();
                 String email = insertDataIntoDbBinding.edEmail.getText().toString();
 
-                String url = "https://smhamidul.xyz/api_practice/data_insert.php?n="+name+"&m="+mobile+"&e="+email;
+                String url = "https://smhamidul.xyz/api_practice/data_insert.php?n=" + name + "&m=" + mobile + "&e=" + email;
 
                 RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -136,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private void getUserDetails(){
+    private void getUserDetails() {
 
         String url = "https://smhamidul.xyz/api_practice/view.php";
 
@@ -149,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONArray response) {
                 insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
 
-                for (int x=0; x<response.length(); x++){
+                for (int x = 0; x < response.length(); x++) {
                     try {
                         JSONObject jsonObject = response.getJSONObject(x);
                         String id = jsonObject.getString("id");
@@ -158,10 +157,10 @@ public class MainActivity extends AppCompatActivity {
                         String email = jsonObject.getString("email");
 
                         hashMap = new HashMap<>();
-                        hashMap.put("id",id);
-                        hashMap.put("name",name);
-                        hashMap.put("mobile",mobile);
-                        hashMap.put("email",email);
+                        hashMap.put("id", id);
+                        hashMap.put("name", name);
+                        hashMap.put("mobile", mobile);
+                        hashMap.put("email", email);
                         arrayList.add(hashMap);
 
                     } catch (JSONException e) {
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
 
-                if (arrayList.size()>0){
+                if (arrayList.size() > 0) {
                     UserAdapter userAdapter = new UserAdapter();
                     insertDataIntoDbBinding.listView.setAdapter(userAdapter);
                 }
@@ -180,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d("serverRes",error.toString());
+                Log.d("serverRes", error.toString());
                 insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
             }
         });
@@ -190,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public class UserAdapter extends BaseAdapter{
+    public class UserAdapter extends BaseAdapter {
 
         UserItemBinding userItemBinding;
         DialogBinding dialogBinding;
@@ -213,7 +212,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
             LayoutInflater layoutInflater = getLayoutInflater();
-            View myView = layoutInflater.inflate(R.layout.user_item,null);
+            View myView = layoutInflater.inflate(R.layout.user_item, null);
             userItemBinding = UserItemBinding.bind(myView);
 
             hashMap = arrayList.get(i);
@@ -234,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                     String mobile = insertDataIntoDbBinding.edMobile.getText().toString();
                     String email = insertDataIntoDbBinding.edEmail.getText().toString();
 
-                    if (name.isEmpty()){
+                    if (name.isEmpty()) {
                         insertDataIntoDbBinding.edName.setError("Please Insert Name");
                         insertDataIntoDbBinding.edName.requestFocus();
                     } else if (mobile.isEmpty()) {
@@ -243,11 +242,10 @@ public class MainActivity extends AppCompatActivity {
                     } else if (email.isEmpty()) {
                         insertDataIntoDbBinding.edEmail.setError("Please Insert Email");
                         insertDataIntoDbBinding.edEmail.requestFocus();
-                    }
-                    else {
+                    } else {
                         insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
 
-                        String url = "https://smhamidul.xyz/api_practice/update.php?id="+id+"&n="+insertDataIntoDbBinding.edName.getText().toString()+"&m="+insertDataIntoDbBinding.edMobile.getText().toString()+"&e="+insertDataIntoDbBinding.edEmail.getText().toString();
+                        String url = "https://smhamidul.xyz/api_practice/update.php?id=" + id + "&n=" + insertDataIntoDbBinding.edName.getText().toString() + "&m=" + insertDataIntoDbBinding.edMobile.getText().toString() + "&e=" + insertDataIntoDbBinding.edEmail.getText().toString();
 
                         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
                         StringRequest stringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
@@ -271,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-                                Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(MainActivity.this, "" + error.toString(), Toast.LENGTH_SHORT).show();
                             }
                         });
                         requestQueue.add(stringRequest);
@@ -322,19 +320,18 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        sharedPreferences = getSharedPreferences(getString(R.string.app_name),MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
-        flag = sharedPreferences.getBoolean("flag",false);
+        flag = sharedPreferences.getBoolean("flag", false);
 
-        if (flag){
+        if (flag) {
             getVideos();
-            editor.putBoolean("flag",false);
+            editor.putBoolean("flag", false);
             editor.apply();
-        }
-        else {
+        } else {
             getJson();
-            editor.putBoolean("flag",true);
+            editor.putBoolean("flag", true);
             editor.apply();
         }
 
@@ -345,7 +342,7 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(JSONArray response) {
                 binding.progressBar.setVisibility(View.GONE);
 
-                for (int x=0; x<response.length(); x++){
+                for (int x = 0; x < response.length(); x++) {
 
                     try {
                         JSONObject jsonObject = response.getJSONObject(x);
@@ -354,8 +351,8 @@ public class MainActivity extends AppCompatActivity {
                         String video_id = jsonObject.getString("video_id");
 
                         hashMap = new HashMap<>();
-                        hashMap.put("title",title);
-                        hashMap.put("video_id",video_id);
+                        hashMap.put("title", title);
+                        hashMap.put("video_id", video_id);
                         arrayList.add(hashMap);
 
                     } catch (JSONException e) {
@@ -395,7 +392,7 @@ public class MainActivity extends AppCompatActivity {
                 try {
                     JSONArray productArray = response.getJSONArray("products");
 
-                    for (int i = 0; i<productArray.length(); i++){
+                    for (int i = 0; i < productArray.length(); i++) {
                         JSONObject jsonObject = productArray.getJSONObject(i);
                         int id = jsonObject.getInt("id");
                         String title = jsonObject.getString("title");
@@ -405,19 +402,18 @@ public class MainActivity extends AppCompatActivity {
                         double discountPercentage = jsonObject.getDouble("discountPercentage");
                         double rating = jsonObject.getDouble("rating");
                         int stock = jsonObject.optInt("stock");
-                        jsonBinding.textView.append("Id : "+id+"\nTitle : "+title+"\nDescription : "+description+"\nCategory : "+category+"\n");
-                        jsonBinding.textView.append("Price : "+price+"\nDiscount Percentage : "+discountPercentage);
-                        jsonBinding.textView.append("\nRating : "+rating+"\nStock : "+stock+"\nTags : ");
+                        jsonBinding.textView.append("Id : " + id + "\nTitle : " + title + "\nDescription : " + description + "\nCategory : " + category + "\n");
+                        jsonBinding.textView.append("Price : " + price + "\nDiscount Percentage : " + discountPercentage);
+                        jsonBinding.textView.append("\nRating : " + rating + "\nStock : " + stock + "\nTags : ");
 
                         JSONArray tagsArray = jsonObject.getJSONArray("tags");
-                        for (int x=0; x<tagsArray.length(); x++){
+                        for (int x = 0; x < tagsArray.length(); x++) {
                             String tags = tagsArray.getString(x);
                             int y = tagsArray.length() - 1;
-                            if (x==y){
+                            if (x == y) {
                                 jsonBinding.textView.append(tags);
-                            }
-                            else {
-                                jsonBinding.textView.append(tags+", ");
+                            } else {
+                                jsonBinding.textView.append(tags + ", ");
                             }
 
                         }
@@ -430,66 +426,59 @@ public class MainActivity extends AppCompatActivity {
                         double width = dimensionsObject.optDouble("width");
                         double height = dimensionsObject.optDouble("height");
                         double depth = dimensionsObject.getDouble("depth");
-                        jsonBinding.textView.append("\nBrand : "+brand+"\nSku : "+sku+"\nWeight : "+weight);
-                        jsonBinding.textView.append("\nWidth : "+width+"\nHeight : "+height+"\nDepth : "+depth);
+                        jsonBinding.textView.append("\nBrand : " + brand + "\nSku : " + sku + "\nWeight : " + weight);
+                        jsonBinding.textView.append("\nWidth : " + width + "\nHeight : " + height + "\nDepth : " + depth);
 
                         String warrantyInformation = jsonObject.optString("warrantyInformation");
                         String shippingInformation = jsonObject.optString("shippingInformation");
                         String availabilityStatus = jsonObject.optString("availabilityStatus");
-                        jsonBinding.textView.append("\nWarranty Information : "+warrantyInformation+"\nShipping Information : "+shippingInformation);
-                        jsonBinding.textView.append("\nAvailability Status : "+availabilityStatus+"\nProduct Review : \n");
+                        jsonBinding.textView.append("\nWarranty Information : " + warrantyInformation + "\nShipping Information : " + shippingInformation);
+                        jsonBinding.textView.append("\nAvailability Status : " + availabilityStatus + "\nProduct Review : \n");
 
                         JSONArray reviewsArray = jsonObject.getJSONArray("reviews");
-                        for (int a=0; a<reviewsArray.length(); a++){
+                        for (int a = 0; a < reviewsArray.length(); a++) {
                             JSONObject reviewsObject = reviewsArray.getJSONObject(a);
                             int cRating = reviewsObject.optInt("rating");
                             String comment = reviewsObject.getString("comment");
                             String date = reviewsObject.getString("date");
 
-                            if (a==0){
-                                jsonBinding.textView.append("{\nRating : "+cRating+"\nComment : "+comment+"\nDate : "+date);
-                            }
-                            else {
-                                jsonBinding.textView.append("\n\nRating : "+cRating+"\nComment : "+comment+"\nDate : "+date);
+                            if (a == 0) {
+                                jsonBinding.textView.append("{\nRating : " + cRating + "\nComment : " + comment + "\nDate : " + date);
+                            } else {
+                                jsonBinding.textView.append("\n\nRating : " + cRating + "\nComment : " + comment + "\nDate : " + date);
                             }
                             String reviewerName = reviewsObject.getString("reviewerName");
                             String reviewerEmail = reviewsObject.getString("reviewerEmail");
-                            if (a==reviewsArray.length()-1){
-                                jsonBinding.textView.append("\nReviewer Name : "+reviewerName+"\nReviewer Email : "+reviewerEmail+"\n}");
-                            }
-                            else {
-                                jsonBinding.textView.append("\nReviewer Name : "+reviewerName+"\nReviewer Email : "+reviewerEmail);
+                            if (a == reviewsArray.length() - 1) {
+                                jsonBinding.textView.append("\nReviewer Name : " + reviewerName + "\nReviewer Email : " + reviewerEmail + "\n}");
+                            } else {
+                                jsonBinding.textView.append("\nReviewer Name : " + reviewerName + "\nReviewer Email : " + reviewerEmail);
                             }
 
                         }
 
                         String returnPolicy = jsonObject.getString("returnPolicy");
                         int minimumOrderQuantity = jsonObject.getInt("minimumOrderQuantity");
-                        jsonBinding.textView.append("\nReturn Policy : "+returnPolicy+"\nMinimum Order Quantity : "+minimumOrderQuantity);
+                        jsonBinding.textView.append("\nReturn Policy : " + returnPolicy + "\nMinimum Order Quantity : " + minimumOrderQuantity);
                         JSONObject metaObject = jsonObject.getJSONObject("meta");
                         String createdAt = metaObject.getString("createdAt");
                         String updatedAt = metaObject.getString("updatedAt");
                         String barcode = metaObject.getString("barcode");
                         String qrCode = metaObject.getString("qrCode");
-                        jsonBinding.textView.append("\nCrated At : "+createdAt+"\nUpdate At : "+updatedAt+"\nBarcode : "+barcode);
-                        jsonBinding.textView.append("\nQr Code : "+qrCode);
+                        jsonBinding.textView.append("\nCrated At : " + createdAt + "\nUpdate At : " + updatedAt + "\nBarcode : " + barcode);
+                        jsonBinding.textView.append("\nQr Code : " + qrCode);
 
                         JSONArray imagesArray = jsonObject.getJSONArray("images");
-                        for (int b=0; b<imagesArray.length(); b++){
+                        for (int b = 0; b < imagesArray.length(); b++) {
                             String image = imagesArray.getString(b);
-                            jsonBinding.textView.append("\nImage : "+image);
+                            jsonBinding.textView.append("\nImage : " + image);
                         }
                         String thumbnail = jsonObject.getString("thumbnail");
-                        jsonBinding.textView.append("\nThumbnail : "+thumbnail);
+                        jsonBinding.textView.append("\nThumbnail : " + thumbnail);
 
 
                         jsonBinding.textView.append("\n\n\n");
                     }
-
-
-
-
-
 
 
                 } catch (JSONException e) {
@@ -508,8 +497,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-    public class MyAdapter extends BaseAdapter{
+    public class MyAdapter extends BaseAdapter {
 
         ItemBinding binding;
 
@@ -531,14 +519,14 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View view, ViewGroup viewGroup) {
             LayoutInflater layoutInflater = getLayoutInflater();
-            View myView = layoutInflater.inflate(R.layout.item,null);
+            View myView = layoutInflater.inflate(R.layout.item, null);
             binding = ItemBinding.bind(myView);
 
             hashMap = arrayList.get(position);
             String title = hashMap.get("title");
             String video_id = hashMap.get("video_id");
-            String image_url = "https://img.youtube.com/vi/"+video_id+"/0.jpg";
-            String video_url = "https://www.youtube.com/embed/"+video_id;
+            String image_url = "https://img.youtube.com/vi/" + video_id + "/0.jpg";
+            String video_url = "https://www.youtube.com/embed/" + video_id;
 
             binding.tvTitle.setText(title);
             Picasso.get()
@@ -547,12 +535,11 @@ public class MainActivity extends AppCompatActivity {
                     .into(binding.imageThumb);
 
 
-
             binding.imageThumb.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     MainActivity2.video_url = video_url;
-                    startActivity(new Intent(MainActivity.this,MainActivity2.class));
+                    startActivity(new Intent(MainActivity.this, MainActivity2.class));
                 }
             });
 
@@ -562,7 +549,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void hideSoftKeyboard() {
-        if(getCurrentFocus()!=null) {
+        if (getCurrentFocus() != null) {
             InputMethodManager inputMethodManager = (InputMethodManager)
                     getSystemService(INPUT_METHOD_SERVICE);
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
@@ -593,11 +580,11 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    public void deleteMethod(String id){
+    public void deleteMethod(String id) {
 
         insertDataIntoDbBinding.progressBar.setVisibility(View.VISIBLE);
 
-        String url = "https://smhamidul.xyz/api_practice/delete.php?id="+id;
+        String url = "https://smhamidul.xyz/api_practice/delete.php?id=" + id;
 
         RequestQueue requestQueue = Volley.newRequestQueue(MainActivity.this);
 
@@ -619,14 +606,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onErrorResponse(VolleyError error) {
                 insertDataIntoDbBinding.progressBar.setVisibility(View.GONE);
-                Toast.makeText(MainActivity.this, ""+error.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "" + error.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
         requestQueue.add(stringRequest);
     }
-
-
 
 
 }
